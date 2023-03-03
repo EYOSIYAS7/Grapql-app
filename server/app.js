@@ -1,4 +1,6 @@
 const express = require("express");
+const cors = require("cors");
+
 const { graphqlHTTP } = require("express-graphql");
 const schema = require("./Schema/schema");
 const { Client } = require("pg");
@@ -8,6 +10,7 @@ db.authenticate()
   .catch((err) => console.log("Error: " + err));
 const app = express();
 
+app.use(cors());
 app.use(
   "/graphql",
   graphqlHTTP({

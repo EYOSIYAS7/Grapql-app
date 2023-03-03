@@ -31,9 +31,9 @@ const Booktype = new GraphQLObjectType({
     // nested query
     author: {
       type: Authortype,
-      resolve(parent, args) {
+      resolve: async (parent, args) => {
         console.log(parent.authorID);
-        return Author.findByPk(parent.authorID);
+        return await Author.findByPk(parent.authorID);
       },
     },
   }),
@@ -46,8 +46,8 @@ const Authortype = new GraphQLObjectType({
     age: { type: GraphQLInt },
     books: {
       type: new GraphQLList(Booktype),
-      resolve(parent, args) {
-        return book.findByPk({ authorID: parent.id });
+      resolve: async (parent, args) => {
+        return await book.findByPk({ authorID: parent.id });
       },
     },
   }),
@@ -60,27 +60,27 @@ const RootQuery = new GraphQLObjectType({
     book: {
       type: Booktype,
       args: { id: { type: GraphQLID } },
-      resolve(parent, args) {
-        return book.findByPk(args.id);
+      resolve: async (parent, args) => {
+        return await book.findByPk(args.id);
       },
     },
     author: {
       type: Authortype,
       args: { id: { type: GraphQLID } },
-      resolve(parent, args) {
-        return Author.findByPk(args.id);
+      resolve: async (parent, args) => {
+        return await Author.findByPk(args.id);
       },
     },
     books: {
       type: new GraphQLList(Booktype),
-      resolve(parent, args) {
-        return book.findAll();
+      resolve: async (parent, args) => {
+        return await book.findAll();
       },
     },
     authors: {
       type: new GraphQLList(Authortype),
-      resolve(parent, args) {
-        return Author.findAll();
+      resolve: async (parent, args) => {
+        return await Author.findAll();
       },
     },
   },
@@ -106,6 +106,18 @@ const Mutation = new GraphQLObjectType({
         return addedboooks;
       },
     },
+    deleteBook: {
+      type: Booktype,
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLID) },
+      },
+      resolve: async (_, { id }) => {
+        const deletedBook = await book.destroy({
+          where: { id: id },
+        });
+        return deletedBook;
+      },
+    },
     addAuthor: {
       type: Authortype,
       args: {
@@ -120,6 +132,18 @@ const Mutation = new GraphQLObjectType({
           age: age,
         });
         return addedAuthor;
+      },
+    },
+    deleteAuthor: {
+      type: Authortype,
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLID) },
+      },
+      resolve: async (_, { id }) => {
+        const deletedAuthor = await Author.destroy({
+          where: { id: id },
+        });
+        return deletedAuthor;
       },
     },
   },
